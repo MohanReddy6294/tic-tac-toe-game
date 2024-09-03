@@ -1,87 +1,69 @@
-#Rock Paper Scissors game by marsian
-print("\n\n\nRock Paper Scissors by marsian83\n\npresss Ctrl+. when you feel like exitting the game.")
-input("\n\n<<PRESS ENTER TO BEGIN>>\n")
-print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+import random
 
-#Framework declaration
-from time import sleep
-from random import choice
-def game():
-    print("\n\n\n\n\n\n\n\nDecide your move, enter \"R\" for Rock, \"S\" for Scissors and \"P\"for Paper")
-    tempVal=input()
-    while tempVal != 'R' and tempVal != 'S' and tempVal != 'P' and tempVal != 'r' and tempVal != 's' and tempVal != 'p':
-        print("Decide your move, enter \"R\" for Rock, \"S\" for Scissors and \"P\"for Paper")
-        tempVal=input();
-    sleep(0.13)
-    if tempVal == "R" or tempVal == "r":
-        Pmove=1
-    elif tempVal == "P" or tempVal == "p":
-        Pmove=2
-    elif tempVal == "S" or tempVal == "s":
-        Pmove=3
-    else:
-        print("Custom_ERROR-01 : can't recognize user's input")
-        raise SystemExit(0);
-    sleep(0.13)
-    Cmove=choice(MoveSet)
-    if Cmove == 1:
-        cpumove='Rock'
-    elif Cmove == 2:
-        cpumove='Paper'
-    elif Cmove == 3:
-        cpumove='Scissor'
-    else:
-        print("Custom_ERROR-00 : CPU's move unrecognizable")
-        raise SystemExit(0)
-    del tempVal;
-    sleep(0.038)
-    return Cmove, Pmove, cpumove
-def decisive(Cmove,Pmove):
-    if [Cmove,Pmove] == [1,3] or [Cmove,Pmove] == [2,1] or [Cmove,Pmove] == [3,2]:
-        winner=1
-    elif [Cmove,Pmove] == [1,2] or [Cmove,Pmove] == [2,3] or [Cmove,Pmove] == [3,1]:
-        winner=2
-    elif [Cmove,Pmove] == [1,1] or [Cmove,Pmove] == [2,2] or [Cmove,Pmove] == [3,3]:
-        winner=0
-    else:
-        print("Custom_ERROR-03 : Set [cpumove,playermove] was assigned an unexpected value")
-        raise SystemExit(0)
-    return winner
-def Scoreboard(winner,cm,cs,ps):
-    if winner == 1:
-        print("\nCPU won the round by choosing",cm)
-        cs=cs+1
-    elif winner == 2:
-        print("\nPlayer won the round!")
-        ps=ps+1
-    else:
-        print("Custom_ERROR-02 : Scoreboard function recieved explicit values")
-        raise SystemExit(0)
-    print("\nSession Score:")
-    print("Player : ",ps)
-    print("CPU : ",cs)
-    return cs, ps
+def print_board(board):
+    for row in board:
+        print(" | ".join(row))
+        print("-" * 5)
 
-#Variable declaration
-MoveSet = [1,2,3]
-Cmove=0
-Pmove=0
-Cscore=0
-Pscore=0
+def check_win(board, player):
+    win_conditions = [
+        # Horizontal
+        [board[0][0], board[0][1], board[0][2]],
+        [board[1][0], board[1][1], board[1][2]],
+        [board[2][0], board[2][1], board[2][2]],
+        # Vertical
+        [board[0][0], board[1][0], board[2][0]],
+        [board[0][1], board[1][1], board[2][1]],
+        [board[0][2], board[1][2], board[2][2]],
+        # Diagonal
+        [board[0][0], board[1][1], board[2][2]],
+        [board[0][2], board[1][1], board[2][0]]
+    ]
+    return [player, player, player] in win_conditions
 
-#Driver Code
-while True:
-    Cmove,Pmove,cpumove=game()
-    winner=decisive(Cmove,Pmove)
-    while winner == 0:
-        print("WoW! A Draw!\nBoth Player and CPU have chosen",cpumove)
-        print("let's go again")
-        Cmove,Pmove,cpumove=game()
-        winner=decisive(Cmove,Pmove)
-    sleep(0.13)
-    cmCache=cpumove;
-    print("CPU - ",cmCache)
-    RoundWinner=winner
-    cs,ps=Scoreboard(RoundWinner,cmCache,Cscore,Pscore)
-    Cscore=cs; Pscore=ps
-    input("<<< PRESS ENTER TO CONTINUE >>>");
+def check_draw(board):
+    return all(cell != " " for row in board for cell in row)
+
+def get_move(board):
+    while True:
+        try:
+            row, col = map(int, input("Enter row and column (0, 1, or 2) separated by a space: ").split())
+            if board[row][col] == " ":
+                return row, col
+            else:
+                print("Cell already taken. Try again.")
+        except (ValueError, IndexError):
+            print("Invalid input. Please enter row and column as two numbers between 0 and 2.")
+
+def move(board):
+    available_moves = [(r, c) for r in range(3) for c in range(3) if board[r][c] == " "]
+    return random.choice(available_moves)
+
+def tic_tac_toe():
+    board = [[" " for _ in range(3)] for _ in range(3)]
+    current_player = "X"  # Human player starts
+
+    while True:
+        print_board(board)
+        if current_player == "X":
+            print("Your turn!")
+            row, col = get_move(board)
+        else:
+            print("Computer's turn!")
+            row, col = move(board)
+
+        board[row][col] = current_player
+
+        if check_win(board, current_player):
+            print_board(board)
+            print(f"Player {current_player} wins!")
+            break
+        if check_draw(board):
+            print_board(board)
+            print("It's a draw!")
+            break
+
+        current_player = "O" if current_player == "X" else "X"
+
+if __name__ == "__main__":
+    tic_tac_toe()
